@@ -95,19 +95,34 @@ git push origin main
 d417f85 Add YOLO crack detection pipeline
 ```
 
-## 环境安装
+## Conda 环境安装
 
-当前系统检测到 RTX 4060 Ti 8GB，但已有 PyTorch 是 CPU 版。建议创建虚拟环境并安装 CUDA 版 PyTorch，再安装本项目依赖。
+当前项目已在 Conda 环境 `cpipc-crack` 下验证通过，GPU 为 RTX 4060 Ti 8GB，核心版本如下：
+
+```text
+python 3.10.20
+torch 2.3.1+cu121
+torchvision 0.18.1+cu121
+ultralytics 8.4.63
+cuda_available True
+```
+
+已验证的手工安装命令：
 
 ```bash
 cd /home/ruiyi/CPIPC/Dection
-python -m venv .venv
-source .venv/bin/activate
+conda create -y -n cpipc-crack python=3.10 pip
+conda activate cpipc-crack
 pip install --upgrade pip
-
-# 按实际 CUDA 版本选择官方命令；下面是 CUDA 12.1 示例
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+pip install --no-cache-dir torch==2.3.1+cu121 torchvision==0.18.1+cu121 --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt
+```
+
+也可以尝试使用 `environment.yml` 一次性创建环境：
+
+```bash
+conda env create -f environment.yml
+conda activate cpipc-crack
 ```
 
 如果只运行数据统计和格式转换，现有环境已具备 `Pillow/PyYAML/sklearn/numpy`，不需要先安装 YOLO。
@@ -116,7 +131,7 @@ pip install -r requirements.txt
 
 ```bash
 cd /home/ruiyi/CPIPC/Dection
-source .venv/bin/activate  # 如已创建虚拟环境
+conda activate cpipc-crack
 
 python src/data_analyze.py --dataset dataset --out outputs/reports/data_stats.json
 python src/prepare_yolo.py --dataset dataset --out data/yolo --val-ratio 0.2 --seed 42

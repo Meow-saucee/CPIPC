@@ -42,6 +42,59 @@ git log --oneline -5
 
 若 `remote origin already exists`，先执行 `git remote -v` 确认，必要时用 `git remote set-url origin <REMOTE_URL>`。
 
+## 代码版本回溯操作
+
+Git 可以支持三种常用回溯方式：查看历史、临时回到旧版本查看、彻底回退到旧版本。即使彻底回退，也可以用 `git reflog` 找回回退前的版本。
+
+查看版本历史：
+
+```bash
+git log --oneline --decorate --graph --all
+```
+
+临时回到某个旧版本查看代码，不改变分支历史：
+
+```bash
+git switch --detach <commit_id>
+
+# 查看完以后回到最新 main
+git switch main
+```
+
+彻底回退当前分支到某个旧版本，会让工作区和分支指针都回到该版本：
+
+```bash
+git status
+git reset --hard <commit_id>
+```
+
+彻底回退后如果发现回错了，可以用 `reflog` 找到回退前的提交，再恢复：
+
+```bash
+git reflog
+git reset --hard <commit_id_before_reset>
+```
+
+如果已经把错误回退推送到了 GitHub，需要强制同步远端。执行前务必确认 `git log --oneline -5` 显示的是想要保留的版本：
+
+```bash
+git push --force-with-lease origin main
+```
+
+更保守的回退方式是 `git revert`，它不会改写历史，而是新增一个“撤销某次提交”的提交；适合多人协作：
+
+```bash
+git revert <commit_id>
+git push origin main
+```
+
+当前项目已经有两个可回溯提交：
+
+```text
+1091a80 Document reproduced dataset stats
+d417f85 Add YOLO crack detection pipeline
+```
+
 ## 环境安装
 
 当前系统检测到 RTX 4060 Ti 8GB，但已有 PyTorch 是 CPU 版。建议创建虚拟环境并安装 CUDA 版 PyTorch，再安装本项目依赖。

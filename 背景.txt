@@ -1,0 +1,5 @@
+赛题网址：https://cpipc.acge.org.cn/cw/contestNews/detail/10/2c9080179cac09ca019cb17ad9530b59?page=1
+
+我们选的赛题四：跨尺度芯片图像的裂纹缺陷智能检测算法设计
+
+数据集：dataset文件夹

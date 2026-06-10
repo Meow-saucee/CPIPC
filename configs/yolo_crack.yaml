@@ -1,0 +1,40 @@
+dataset_root: dataset
+prepared_root: data/yolo
+class_names:
+  - crack
+
+split:
+  val_ratio: 0.2
+  seed: 42
+
+train:
+  model: yolov8s.pt
+  imgsz: 1024
+  epochs: 100
+  batch: 4
+  device: auto
+  project: runs/crack_yolo
+  name: train
+  workers: 4
+  patience: 30
+  close_mosaic: 10
+
+infer:
+  imgsz: 1280
+  conf: 0.05
+  iou: 0.55
+  max_det: 300
+  direct_max_side: 2048
+  tile_size: 1280
+  tile_overlap: 256
+  include_global_for_large: true
+
+eval:
+  iou_match: 0.5
+  tiny_width: 5
+  tiny_area: 50
+  large_area: 90000
+
+outputs:
+  reports: outputs/reports
+  submissions: outputs/submissions

@@ -1,0 +1,13 @@
+# Install a CUDA-enabled PyTorch build first if you want GPU training.
+# Example for CUDA 12.1:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+#
+# Then install the project dependencies:
+ultralytics>=8.2.0
+opencv-python>=4.8.0
+pillow>=9.0.0
+scikit-learn>=1.1.0
+tqdm>=4.64.0
+pyyaml>=6.0
+pandas>=1.5.0
+numpy>=1.23.0

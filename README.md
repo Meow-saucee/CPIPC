@@ -21,10 +21,12 @@ src/train_yolo.py          # YOLO 训练入口 main()
 src/validate_yolo.py       # 本地验证和错误分析入口 main()
 src/infer_submit.py        # 测试集推理并生成 results.json 入口 main()
 src/check_submit.py        # 提交文件合法性检查入口 main()
+src/archive_experiment.py  # 归档已有 run，保存 ckpt/结果/TensorBoard 入口 main()
+src/experiment_utils.py    # 实验命名、results.csv 汇总、TensorBoard 写入工具
 requirements.txt           # 依赖说明
 ```
 
-`dataset/`、`data/`、`outputs/`、`runs/`、权重文件和虚拟环境已加入 `.gitignore`，不会进入 Git。
+`dataset/`、`data/`、`outputs/`、`runs/`、`experiments/`、权重文件和虚拟环境已加入 `.gitignore`，不会进入 Git。
 
 ## GitHub 回溯流程
 
@@ -144,6 +146,58 @@ python src/check_submit.py --dataset dataset --submit outputs/submissions/result
 
 8GB 显存默认使用 `batch=4,imgsz=1024`。若显存不足，先降为 `batch=2`；若在 16GB 或 4080 环境测速，可尝试 `imgsz=1280,batch=8`。
 
+## 实验命名、归档和 TensorBoard
+
+默认配置会按模型、数据集、关键训练参数生成实验名：
+
+```text
+{model}_{dataset}_img{imgsz}_ep{epochs}_bs{batch}_seed{seed}_{tag}
+```
+
+例如本次正式基线实验名为：
+
+```text
+yolov8s_cpipc-chip-crack_img1024_ep100_bs4_seed42_baseline
+```
+
+后续训练默认会把 Ultralytics run 写到 `runs/crack_yolo/<experiment_name>`，训练完成后自动归档到 `experiments/<experiment_name>`。归档目录结构：
+
+```text
+experiments/<experiment_name>/
+  checkpoints/        # 标准命名 best/last ckpt
+  reports/            # results.csv、args.yaml、自定义验证、错误分析、提交文件
+  plots/              # Ultralytics 曲线、混淆矩阵、batch 可视化
+  tensorboard/        # 从 results.csv 生成的 events.out.tfevents.*
+  experiment.json     # last_epoch、best_epoch、best_metrics、路径和命令
+  experiment.yaml
+```
+
+手动归档已有 run：
+
+```bash
+python src/archive_experiment.py \
+  --run-dir runs/crack_yolo/train \
+  --config configs/yolo_crack.yaml \
+  --model yolov8s.pt \
+  --dataset-name cpipc-chip-crack \
+  --imgsz 1024 \
+  --epochs 100 \
+  --batch 4 \
+  --seed 42 \
+  --tag baseline \
+  --metrics outputs/reports/baseline_val_metrics.json \
+  --errors outputs/reports/val_errors.csv \
+  --submission outputs/submissions/results.json
+```
+
+查看 TensorBoard：
+
+```bash
+tensorboard --logdir experiments --host 0.0.0.0 --port 6006
+```
+
+若只想训练不自动归档，可加 `--no-archive`。若要强制使用自定义 run 名，可加 `--name your_exp_name`，但建议仍保留模型、数据集和关键参数。
+
 ## 输出文件
 
 - `outputs/reports/data_stats.json`：数据数量、尺度、类别、bbox 异常和难点样本统计。
@@ -153,6 +207,7 @@ python src/check_submit.py --dataset dataset --submit outputs/submissions/result
 - `outputs/reports/val_metrics.json`：`mAP50`、`precision_at_conf`、`recall_at_iou50`、`tiny_recall_at_iou50`、`large_mean_best_iou`、平均推理耗时。
 - `outputs/reports/val_errors.csv`：验证集漏检样本，用于误差分析。
 - `outputs/submissions/results.json`：最终提交文件。
+- `experiments/<experiment_name>/experiment.json`：规范实验索引，包含 `last_epoch`、`best_epoch`、best/last ckpt 路径、训练参数和 TensorBoard 路径。
 
 ## 调优方向
 

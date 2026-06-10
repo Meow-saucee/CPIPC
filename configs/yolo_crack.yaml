@@ -14,10 +14,16 @@ train:
   batch: 4
   device: auto
   project: runs/crack_yolo
-  name: train
+  name: auto
   workers: 4
   patience: 30
   close_mosaic: 10
+
+experiment:
+  dataset_name: cpipc-chip-crack
+  root: experiments
+  tag: baseline
+  archive_after_train: true
 
 infer:
   imgsz: 1280

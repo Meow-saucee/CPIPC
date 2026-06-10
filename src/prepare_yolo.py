@@ -8,7 +8,7 @@ from typing import Any
 import yaml
 from PIL import Image
 
-from common import clip_xywh, load_json, safe_symlink_or_copy
+from common import clip_xywh, load_json, safe_link_or_copy
 
 
 def image_flags(item: dict[str, Any]) -> tuple[bool, bool]:
@@ -82,7 +82,7 @@ def write_split(
     for item in items:
         src_img = source_split_dir / item["Image"]
         dst_img = image_out_dir / Path(item["Image"]).name
-        safe_symlink_or_copy(src_img, dst_img)
+        safe_link_or_copy(src_img, dst_img)
         lines.append(str(dst_img.resolve()))
         if with_labels:
             label_path = label_out_dir / f"{Path(item['Image']).stem}.txt"

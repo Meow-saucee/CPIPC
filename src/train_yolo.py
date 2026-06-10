@@ -14,6 +14,8 @@ def main() -> None:
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--batch", type=int, default=None)
     parser.add_argument("--device", default=None)
+    parser.add_argument("--project", default=None)
+    parser.add_argument("--name", default=None)
     args = parser.parse_args()
 
     cfg = load_yaml(args.config)
@@ -34,14 +36,15 @@ def main() -> None:
     if device == "auto":
         device = None
 
+    project = Path(args.project or train_cfg["project"]).resolve()
     model.train(
         data=str(data_yaml),
         imgsz=args.imgsz or train_cfg["imgsz"],
         epochs=args.epochs or train_cfg["epochs"],
         batch=args.batch or train_cfg["batch"],
         device=device,
-        project=train_cfg["project"],
-        name=train_cfg["name"],
+        project=str(project),
+        name=args.name or train_cfg["name"],
         workers=train_cfg.get("workers", 4),
         patience=train_cfg.get("patience", 30),
         close_mosaic=train_cfg.get("close_mosaic", 10),

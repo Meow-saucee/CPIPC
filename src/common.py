@@ -93,13 +93,16 @@ def nms_xyxy(boxes: list[list[float]], scores: list[float], iou_thr: float) -> l
     return keep
 
 
-def safe_symlink_or_copy(src: Path, dst: Path) -> None:
+def safe_link_or_copy(src: Path, dst: Path) -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
-    if dst.exists() or dst.is_symlink():
+    if dst.is_symlink():
+        dst.unlink()
+    if dst.exists():
         return
+    # Ultralytics resolves symlinks before locating sibling labels. Hard links
+    # preserve the expected data/yolo/images -> data/yolo/labels layout.
     try:
-        rel = os.path.relpath(src, dst.parent)
-        dst.symlink_to(rel)
+        os.link(src, dst)
     except OSError:
         import shutil
 

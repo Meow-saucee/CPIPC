@@ -1,0 +1,103 @@
+dataset_root: dataset
+prepared_root: data/yolo_seg
+class_names:
+  - crack
+
+split:
+  val_ratio: 0.2
+  seed: 42
+
+segmentation:
+  epsilon_ratio: 0.0005
+  max_points: 400
+
+train:
+  model: yolo11n-seg.pt
+  imgsz: 1024
+  epochs: 200
+  batch: 2
+  device: auto
+  project: runs/crack_yolo_seg
+  name: auto
+  workers: 4
+  patience: 50
+  close_mosaic: 20
+  optimizer: auto
+  mask_ratio: 4
+
+experiment:
+  dataset_name: cpipc-chip-crack-seg
+  root: experiments
+  tag: seg-hybrid
+  archive_after_train: true
+
+infer:
+  imgsz: 1280
+  conf: 0.01
+  iou: 0.55
+  max_det: 300
+  direct_max_side: 2048
+  direct_resize_max_side: 1280
+  global_max_side: 1280
+  adaptive_global_max_side: 0
+  adaptive_global_threshold: 0
+  tile_size: 1280
+  tile_overlap: 256
+  tile_trigger: low_preds
+  tile_min_global_preds: 1
+  max_tiles: 8
+  prediction_box_source: mask_box
+  retina_masks: true
+  include_global_for_large: true
+  keep_masks_for_merge: true
+  min_mask_area: 5
+  box_iou_merge: 0.5
+  mask_iou_merge: 0.35
+  box_expand_ratio: 0.12
+  box_expand_pixels: 12.0
+  box_expand_min_area: 90000.0
+  box_expand_min_side: 0.0
+  tiny_box_min_width: 2.0
+  tiny_box_min_height: 6.0
+  tiny_box_max_area: 80.0
+  tiny_box_min_side: 6.0
+  tiny_box_max_width: 8.0
+  elongated_box_expand_ratio: 0.2
+  elongated_box_expand_pixels: 0.0
+  elongated_box_min_area: 30000.0
+  elongated_box_min_aspect: 3.0
+  edge_anchor_expand_margin: 0.0
+  edge_anchor_min_area: 0.0
+  edge_anchor_min_aspect: 0.0
+  union_elongated_clusters: true
+  union_cluster_min_area: 30000.0
+  union_cluster_min_aspect: 3.0
+  union_cluster_max_gap: 256.0
+  union_cluster_min_cross_overlap: 0.15
+  union_cluster_min_members: 2
+  union_cluster_score_factor: 0.2
+  union_cluster_score_floor: 0.5
+  union_cluster_score_area_norm: 90000.0
+  union_cluster_max_new_boxes: 20
+  union_cluster_box_source: mask_box
+  large_box_variants: false
+  large_variant_min_area: 90000.0
+  large_variant_score_factor: 0.35
+  large_variant_score_floor: 0.0
+  large_variant_max_new_boxes: 50
+  large_variant_expand_ratio: 0.0
+  large_variant_shrink_ratio: 0.0
+  large_variant_directional_expand_ratio: 0.0
+  large_variant_min_delta: 1.0
+  large_variant_source_filter: all
+  augment: false
+
+outputs:
+  reports: outputs/reports
+  submissions: outputs/submissions
+
+eval:
+  iou_match: 0.5
+  tiny_width: 5
+  tiny_area: 50
+  large_area: 90000

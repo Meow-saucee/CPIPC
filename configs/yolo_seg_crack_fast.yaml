@@ -1,0 +1,57 @@
+dataset_root: dataset
+prepared_root: data/yolo_seg
+class_names:
+  - crack
+
+split:
+  val_ratio: 0.2
+  seed: 42
+
+segmentation:
+  epsilon_ratio: 0.0005
+  max_points: 400
+
+train:
+  model: yolo11n-seg.pt
+  imgsz: 1024
+  epochs: 200
+  batch: 2
+  device: auto
+  project: runs/crack_yolo_seg
+  name: auto
+  workers: 4
+  patience: 50
+  close_mosaic: 20
+  optimizer: auto
+  mask_ratio: 4
+
+experiment:
+  dataset_name: cpipc-chip-crack-seg
+  root: experiments
+  tag: seg-fast
+  archive_after_train: true
+
+infer:
+  imgsz: 1280
+  conf: 0.08
+  iou: 0.55
+  max_det: 300
+  direct_max_side: 2048
+  global_max_side: 1280
+  tile_size: 0
+  tile_overlap: 0
+  include_global_for_large: true
+  min_mask_area: 5
+  box_iou_merge: 0.5
+  mask_iou_merge: 0.35
+  augment: false
+
+outputs:
+  reports: outputs/reports
+  submissions: outputs/submissions
+
+eval:
+  iou_match: 0.5
+  tiny_width: 5
+  tiny_area: 50
+  large_area: 90000

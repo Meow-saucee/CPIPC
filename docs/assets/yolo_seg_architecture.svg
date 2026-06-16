@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 16px Arial, sans-serif; fill: #475569; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 8; }
+      .input { fill: #ecfeff; stroke: #0891b2; }
+      .backbone { fill: #eff6ff; stroke: #2563eb; }
+      .neck { fill: #f0fdf4; stroke: #16a34a; }
+      .head { fill: #fff7ed; stroke: #ea580c; }
+      .post { fill: #fef2f2; stroke: #dc2626; }
+      .text { font: 16px Arial, sans-serif; fill: #0f172a; }
+      .small { font: 13px Arial, sans-serif; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #64748b; stroke-width: 2; stroke-dasharray: 8 6; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="720" fill="#f8fafc"/>
+  <text x="40" y="54" class="title">YOLO-seg Model Architecture for Crack Detection</text>
+  <text x="40" y="82" class="subtitle">Single class crack segmentation model, submitted as bbox predictions</text>
+
+  <rect x="56" y="145" width="190" height="80" class="box input"/>
+  <text x="78" y="176" class="text">Input image</text>
+  <text x="78" y="198" class="small">gray L channel to RGB</text>
+  <text x="78" y="216" class="small">letterbox to imgsz</text>
+
+  <rect x="315" y="110" width="190" height="65" class="box backbone"/>
+  <text x="337" y="139" class="text">Backbone P3</text>
+  <text x="337" y="160" class="small">high-res small crack features</text>
+  <rect x="315" y="205" width="190" height="65" class="box backbone"/>
+  <text x="337" y="234" class="text">Backbone P4</text>
+  <text x="337" y="255" class="small">medium scale features</text>
+  <rect x="315" y="300" width="190" height="65" class="box backbone"/>
+  <text x="337" y="329" class="text">Backbone P5</text>
+  <text x="337" y="350" class="small">large crack semantic features</text>
+
+  <rect x="585" y="155" width="215" height="120" class="box neck"/>
+  <text x="607" y="190" class="text">Neck: FPN / PAN</text>
+  <text x="607" y="214" class="small">top-down and bottom-up fusion</text>
+  <text x="607" y="234" class="small">combines local texture and context</text>
+  <text x="607" y="254" class="small">handles cross-scale images</text>
+
+  <rect x="880" y="110" width="230" height="80" class="box head"/>
+  <text x="902" y="141" class="text">Detect Head</text>
+  <text x="902" y="163" class="small">bbox xyxy, score, class=crack</text>
+  <text x="902" y="181" class="small">used directly for submission boxes</text>
+  <rect x="880" y="245" width="230" height="90" class="box head"/>
+  <text x="902" y="276" class="text">Seg Head</text>
+  <text x="902" y="298" class="small">mask prototype + coefficients</text>
+  <text x="902" y="316" class="small">captures thin and curved cracks</text>
+
+  <rect x="540" y="455" width="230" height="70" class="box post"/>
+  <text x="562" y="485" class="text">mask_to_box</text>
+  <text x="562" y="507" class="small">mask external rectangle</text>
+
+  <rect x="850" y="455" width="250" height="90" class="box post"/>
+  <text x="872" y="485" class="text">Post-processing</text>
+  <text x="872" y="507" class="small">merge, expansion, tiny compensation</text>
+  <text x="872" y="525" class="small">elongated union, clip, sort</text>
+
+  <rect x="850" y="590" width="250" height="62" class="box post"/>
+  <text x="872" y="617" class="text">Official output</text>
+  <text x="872" y="638" class="small">predict_bboxes: x1,y1,x2,y2,score,label</text>
+
+  <path d="M246 185 C275 145 286 142 315 142" class="arrow"/>
+  <path d="M246 185 C275 225 286 237 315 237" class="arrow"/>
+  <path d="M246 185 C275 305 286 332 315 332" class="arrow"/>
+  <path d="M505 142 C545 150 555 175 585 190" class="arrow"/>
+  <path d="M505 237 L585 215" class="arrow"/>
+  <path d="M505 332 C545 315 555 255 585 238" class="arrow"/>
+  <path d="M800 205 C835 150 842 150 880 150" class="arrow"/>
+  <path d="M800 230 C835 287 842 290 880 290" class="arrow"/>
+  <path d="M995 335 C995 390 710 398 655 455" class="dash"/>
+  <path d="M1110 150 C1165 210 1162 435 1100 485" class="arrow"/>
+  <path d="M770 490 L850 500" class="arrow"/>
+  <path d="M975 545 L975 590" class="arrow"/>
+
+  <rect x="56" y="545" width="390" height="108" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="8"/>
+  <text x="76" y="574" class="text">Main editable parameters</text>
+  <text x="76" y="598" class="small">train.model, train.imgsz, train.epochs, train.batch, train.mask_ratio</text>
+  <text x="76" y="620" class="small">infer.conf, infer.iou, tile_size, tile_overlap, max_tiles</text>
+  <text x="76" y="642" class="small">union_cluster_score_floor, union_cluster_box_source, tiny_box_*</text>
+</svg>

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import yaml
 from PIL import Image
 
 from common import clip_xyxy, load_json, load_yaml, nms_xyxy, round_box, save_json
@@ -14,6 +15,20 @@ from common import clip_xyxy, load_json, load_yaml, nms_xyxy, round_box, save_js
 def load_rgb(path: Path) -> np.ndarray:
     with Image.open(path) as im:
         return np.asarray(im.convert("RGB"))
+
+
+def load_split_items(dataset_root: Path, prepared_root: Path, split: str) -> tuple[list[dict[str, Any]], Path]:
+    if split == "test":
+        return load_json(dataset_root / "test" / "test.json")["Dataset"], dataset_root / "test"
+    if split == "val":
+        items = load_json(dataset_root / "trainval" / "trainval.json")["Dataset"]
+        manifest_path = prepared_root / "split_manifest.yaml"
+        if not manifest_path.exists():
+            raise FileNotFoundError(f"{manifest_path} not found. Run data preparation first.")
+        with manifest_path.open("r", encoding="utf-8") as f:
+            val_ids = set(yaml.safe_load(f)["val_ids"])
+        return [item for item in items if item["ID"] in val_ids], dataset_root / "trainval"
+    raise ValueError(f"Unsupported split: {split}")
 
 
 def predict_array(model: Any, image: np.ndarray, imgsz: int, conf: float, iou: float, max_det: int) -> list[dict[str, Any]]:
@@ -62,7 +77,8 @@ def predict_multiscale(model: Any, image: np.ndarray, cfg: dict[str, Any]) -> tu
             scores.append(pred["score"])
     else:
         if infer_cfg.get("include_global_for_large", True):
-            global_img, scale = resize_for_global(image, infer_cfg["imgsz"])
+            global_max_side = int(infer_cfg.get("global_max_side", infer_cfg["imgsz"]))
+            global_img, scale = resize_for_global(image, global_max_side)
             preds = predict_array(
                 model,
                 global_img,
@@ -106,11 +122,35 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run YOLO inference and generate official results.json.")
     parser.add_argument("--config", default="configs/yolo_crack.yaml")
     parser.add_argument("--weights", required=True)
-    parser.add_argument("--split", choices=["test"], default="test")
+    parser.add_argument("--split", choices=["test", "val"], default="test")
     parser.add_argument("--out", default=None)
+    parser.add_argument("--limit", type=int, default=None, help="Optional debug limit for the number of images.")
+    parser.add_argument("--imgsz", type=int, default=None)
+    parser.add_argument("--conf", type=float, default=None)
+    parser.add_argument("--iou", type=float, default=None)
+    parser.add_argument("--direct-max-side", type=int, default=None)
+    parser.add_argument("--global-max-side", type=int, default=None)
+    parser.add_argument("--tile-size", type=int, default=None, help="Set 0 to disable tiled inference.")
+    parser.add_argument("--tile-overlap", type=int, default=None)
+    parser.add_argument("--include-global-for-large", action="store_true", default=None)
+    parser.add_argument("--no-include-global-for-large", action="store_false", dest="include_global_for_large")
     args = parser.parse_args()
 
     cfg = load_yaml(args.config)
+    infer_cfg = cfg["infer"]
+    overrides = {
+        "imgsz": args.imgsz,
+        "conf": args.conf,
+        "iou": args.iou,
+        "direct_max_side": args.direct_max_side,
+        "global_max_side": args.global_max_side,
+        "tile_size": args.tile_size,
+        "tile_overlap": args.tile_overlap,
+        "include_global_for_large": args.include_global_for_large,
+    }
+    for key, value in overrides.items():
+        if value is not None:
+            infer_cfg[key] = value
     dataset_root = Path(cfg["dataset_root"])
     submissions_dir = Path(cfg["outputs"]["submissions"])
     submissions_dir.mkdir(parents=True, exist_ok=True)
@@ -121,12 +161,13 @@ def main() -> None:
         raise SystemExit("Missing ultralytics. Install dependencies from requirements.txt first.") from exc
 
     model = YOLO(args.weights)
-    json_path = dataset_root / args.split / f"{args.split}.json"
-    items = load_json(json_path)["Dataset"]
+    items, image_root = load_split_items(dataset_root, Path(cfg["prepared_root"]), args.split)
+    if args.limit is not None:
+        items = items[: args.limit]
 
     results = []
     for idx, item in enumerate(items, start=1):
-        img_path = dataset_root / args.split / item["Image"]
+        img_path = image_root / item["Image"]
         image = load_rgb(img_path)
         height, width = image.shape[:2]
         preds, elapsed_ms = predict_multiscale(model, image, cfg)
@@ -154,8 +195,8 @@ def main() -> None:
                 "predict_bboxes": predict_bboxes,
             }
         )
-        if idx % 20 == 0 or idx == len(items):
-            print(f"[{idx}/{len(items)}] processed")
+        if idx % 5 == 0 or idx == len(items):
+            print(f"[{idx}/{len(items)}] processed", flush=True)
 
     out_path = Path(args.out) if args.out else submissions_dir / "results.json"
     save_json(results, out_path)

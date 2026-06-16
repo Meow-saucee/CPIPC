@@ -11,6 +11,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Archive one YOLO run with ckpts, metrics and TensorBoard logs.")
     parser.add_argument("--run-dir", required=True, help="Ultralytics run directory, e.g. runs/crack_yolo/train")
     parser.add_argument("--config", default="configs/yolo_crack.yaml")
+    parser.add_argument("--data-yaml", default=None, help="YOLO data yaml used by this run.")
     parser.add_argument("--exp-root", default=None)
     parser.add_argument("--exp-name", default=None)
     parser.add_argument("--model", default=None)
@@ -69,6 +70,7 @@ def main() -> None:
             "tag": tag,
         },
         "config": args.config,
+        "data_yaml": args.data_yaml,
         "command": args.command,
     }
     exp_dir = archive_experiment(

@@ -4,6 +4,7 @@
 #
 # Then install the project dependencies:
 ultralytics>=8.2.0
+pycocotools>=2.0.8
 opencv-python>=4.8.0
 pillow>=9.0.0
 scikit-learn>=1.1.0

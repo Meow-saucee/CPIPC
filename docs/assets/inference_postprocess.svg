@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 16px Arial, sans-serif; fill: #475569; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 8; }
+      .decision { fill: #fefce8; stroke: #ca8a04; stroke-width: 2; }
+      .branch { fill: #eff6ff; stroke: #2563eb; stroke-width: 2; }
+      .post { fill: #f0fdf4; stroke: #16a34a; stroke-width: 2; }
+      .out { fill: #fef2f2; stroke: #dc2626; stroke-width: 2; }
+      .text { font: 16px Arial, sans-serif; fill: #0f172a; }
+      .small { font: 13px Arial, sans-serif; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .label { font: 13px Arial, sans-serif; fill: #334155; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="780" fill="#f8fafc"/>
+  <text x="40" y="54" class="title">Cross-scale Inference and Crack-specific Post-processing</text>
+  <text x="40" y="82" class="subtitle">Designed for mAP50, tiny crack recall, localization diagnostics, and bounded latency</text>
+
+  <rect x="60" y="130" width="190" height="65" class="box"/>
+  <text x="82" y="158" class="text">Read test image</text>
+  <text x="82" y="179" class="small">single channel gray image</text>
+
+  <polygon points="390,116 540,162 390,208 240,162" class="decision"/>
+  <text x="319" y="157" class="text">max side <=</text>
+  <text x="315" y="178" class="text">direct_max_side?</text>
+
+  <rect x="625" y="95" width="210" height="76" class="box branch"/>
+  <text x="647" y="126" class="text">Direct inference</text>
+  <text x="647" y="148" class="small">imgsz=1280, no tiling</text>
+
+  <rect x="625" y="215" width="210" height="76" class="box branch"/>
+  <text x="647" y="246" class="text">Global branch</text>
+  <text x="647" y="268" class="small">resize large image to global_max_side</text>
+
+  <polygon points="730,340 890,390 730,440 570,390" class="decision"/>
+  <text x="648" y="384" class="text">Need tile branch?</text>
+  <text x="653" y="405" class="small">tile_trigger, max_tiles</text>
+
+  <rect x="980" y="350" width="210" height="76" class="box branch"/>
+  <text x="1002" y="381" class="text">Overlapped tiling</text>
+  <text x="1002" y="403" class="small">tile_size / tile_overlap</text>
+
+  <rect x="360" y="500" width="210" height="70" class="box post"/>
+  <text x="382" y="530" class="text">Coordinate restore</text>
+  <text x="382" y="552" class="small">map global/tile predictions to original image</text>
+
+  <rect x="650" y="500" width="230" height="70" class="box post"/>
+  <text x="672" y="530" class="text">Merge predictions</text>
+  <text x="672" y="552" class="small">box IoU + mask IoU NMS/fusion</text>
+
+  <rect x="960" y="490" width="230" height="92" class="box post"/>
+  <text x="982" y="520" class="text">Crack-specific boxes</text>
+  <text x="982" y="542" class="small">tiny compensation, optional large calibration</text>
+  <text x="982" y="560" class="small">weighted ensemble, clip, score sorting</text>
+
+  <rect x="650" y="640" width="230" height="70" class="box out"/>
+  <text x="672" y="670" class="text">results.json</text>
+  <text x="672" y="692" class="small">clip, sort by score, label=crack</text>
+
+  <path d="M250 162 L240 162" class="arrow"/>
+  <path d="M540 155 L625 130" class="arrow"/>
+  <text x="548" y="130" class="label">yes</text>
+  <path d="M455 198 C520 228 562 245 625 252" class="arrow"/>
+  <text x="510" y="220" class="label">no</text>
+  <path d="M730 291 L730 340" class="arrow"/>
+  <path d="M890 390 L980 390" class="arrow"/>
+  <text x="912" y="374" class="label">yes</text>
+  <path d="M650 425 C560 460 500 470 465 500" class="arrow"/>
+  <text x="560" y="452" class="label">no</text>
+  <path d="M730 171 C690 300 515 390 465 500" class="arrow"/>
+  <path d="M730 291 C690 365 525 455 465 500" class="arrow"/>
+  <path d="M1085 426 C1000 470 610 478 465 500" class="arrow"/>
+  <path d="M570 535 L650 535" class="arrow"/>
+  <path d="M880 535 L960 535" class="arrow"/>
+  <path d="M1075 582 C1020 650 938 675 880 675" class="arrow"/>
+
+  <rect x="60" y="640" width="460" height="86" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="8"/>
+  <text x="80" y="668" class="text">Current main candidate</text>
+  <text x="80" y="692" class="small">ensemble_y26_y11_weighted: mAP50 and recall priority</text>
+  <text x="80" y="714" class="small">demote variant kept only as large-box localization reference</text>
+</svg>

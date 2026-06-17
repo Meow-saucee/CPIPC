@@ -27,7 +27,7 @@
   <text x="82" y="179" class="small">single channel gray image</text>
 
   <polygon points="390,116 540,162 390,208 240,162" class="decision"/>
-  <text x="319" y="157" class="text">max side <=</text>
+  <text x="319" y="157" class="text">max side &lt;=</text>
   <text x="315" y="178" class="text">direct_max_side?</text>
 
   <rect x="625" y="95" width="210" height="76" class="box branch"/>
@@ -81,7 +81,7 @@
   <path d="M1075 582 C1020 650 938 675 880 675" class="arrow"/>
 
   <rect x="60" y="640" width="460" height="86" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="8"/>
-  <text x="80" y="668" class="text">Current main candidate</text>
-  <text x="80" y="692" class="small">ensemble_y26_y11_weighted: mAP50 and recall priority</text>
-  <text x="80" y="714" class="small">demote variant kept only as large-box localization reference</text>
+  <text x="80" y="668" class="text">Current final candidate</text>
+  <text x="80" y="692" class="small">speed-route ensemble: mAP50/recall + latency compliance</text>
+  <text x="80" y="714" class="small">Large IoU kept as localization reference</text>
 </svg>
